@@ -1,9 +1,7 @@
 # TP Programación I
 # Integrantes: Gonzalo Lopez Batista, Lucio Claa, Agustin Mollo, Agustina Galante, Jessica Ijelman Lipoevtzky
 
-import random
-import funciones 
-
+import funciones
 
 
 
@@ -11,9 +9,11 @@ import funciones
 def main():
     listaProvincias, listaHabitantes, infectados = funciones.inicializarListas()
     matriz = funciones.inicializarMatriz(listaHabitantes,infectados)
-    login = funciones.llamarLogin()
+    credenciales = funciones.inicializarDicLogin()
+    login = funciones.llamarLogin(credenciales)
     
     if login == 1:
+        funciones.generarArchivoEstados("EstadosIniciales.csv",matriz,listaProvincias)
         #RONDA 1
         matriz,presupuesto = funciones.inicioDelJuego(listaProvincias,listaHabitantes,matriz)
         #RONDA 2
@@ -25,6 +25,7 @@ def main():
         #RONDA 5
         matriz,presupuesto,gano = funciones.parteCuatroJuego(listaProvincias,listaHabitantes,matriz,presupuesto)
         
+        funciones.generarArchivoEstados("EstadosFinales.csv",matriz,listaProvincias)
         funciones.finJuego(listaHabitantes,matriz,gano)
         
         print("\n------------------------------------------------------------")
@@ -35,7 +36,9 @@ def main():
         print(" --> Informe de mayor porcentaje de cantidad de muertos por Provincia: \n")
         funciones.porcentajeMayorMuertosporProvincia(listaProvincias,listaHabitantes,matriz)
         print(" --> Informe de porcentaje de muertes en todo el pais:\n")
-        funciones.porcentajeMuertosTotal(listaHabitantes, matriz)    
+        funciones.porcentajeMuertosTotal(listaHabitantes, matriz)   
+        funciones.generarArchivoSanosPorZona(matriz,listaProvincias) 
+        funciones.ArchivoPorcenMuertos(listaProvincias,listaHabitantes,matriz)
     
 
 main()

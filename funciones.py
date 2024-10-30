@@ -7,7 +7,7 @@ import random
 # Funcion para imprimir Matriz
 def mostrarMatriz(listaProvincias, listaHabitantes, matriz): 
     print("------------------------------------------------------------------------------------------")
-    print("\t\t\tESTADO INICIAL DE LAS PROVINCIAS")
+    print("\t\t\tESTADO DE LAS PROVINCIAS")
     print("------------------------------------------------------------------------------------------")
     print(f"{'PROVINCIA':<20}{'HABITANTES':>12}\t{'SANOS':>12}\t{'INFECTADOS':>12}\t{'MUERTOS':>12}")
 
@@ -111,65 +111,124 @@ def alteracionNegativaMatriz (matriz, variacionCantHabs):
 # Declaracion del menu inicial.
 def menuInicial():
     print("Bienvenido al menú principal:")
-    opcion = int(input("Seleccione una opcion:\n (1) - Iniciar Juego\n (2) - Salir\n"))
-    while opcion != 1 and opcion != 2:
-        opcion = int(input("Por favor seleccione una opción correcta:\n (1) - Iniciar Juego\n (2) - Salir\n"))
+
+    while True: 
+        try: 
+            opcion = int(input("Seleccione una opcion:\n (1) - Iniciar Juego\n (2) - Registrarse\n (3) - Salir\n"))
+            break
+        except ValueError: 
+            print("Debes ingresar un número entero ")
+    while opcion != 1 and opcion != 2 and opcion != 3:
+        while True:
+            try: 
+                opcion = int(input("Por favor seleccione una opción correcta:\n (1) - Iniciar Juego\n (2) - Registrarse\n (3) - Salir\n"))
+                break
+            except ValueError: 
+                print("Debes ingresar un número entero ")
+
     return opcion
 
+def inicializarDicLogin():
+    credenciales = { 
+                    "usuario": "1",
+                    "user": "1",
+                    "usuario2": "contraseña2",
+                    "1":"1"
+    }
+    return credenciales
 
+#Recursividad: las contraseñas que se ingresen al registrarse deben contenter al menos un número
+def contraConNums(password):
+    numeros = '0123456789'
+    if len(password) > 0:
+        if password[0] in numeros:
+            return True
+        else:
+            return contraConNums(password[1:])
+    else:
+        return False
 
+def registrarse(credenciales):
+    user = input("Nuevo Usuario ")
+    userLower = user.lower()
+    verificar = credenciales.get(userLower)
+    while verificar != None:
+        user = input(" Este usuario está en uso. Ingrese un nuevo usuario.")
+        userLower = user.lower()
+        verificar = credenciales.get(userLower)
+    password = input("Ingrese una contraseña (que contenga al menos un número) ")
+    numsPassword = contraConNums(password)
+    while numsPassword == False:
+        password = input("Ingrese una contraseña (que contenga al menos un número) ")
+        numsPassword = contraConNums(password)
+    passwordLower = password.lower()
+    return userLower, passwordLower
+        
 # la siguiente funcion, no recibe parametros, invoca a la fucion de login y si esta retorna 1 (si el usuario pudo acceder con usuario y contraseña)
 # entonces invoca la funcion que despliega el menu de inicio
 # Declaracion del login.
-def llamarLogin():
+def llamarLogin(credenciales):
     log = 0
-    if login() == 1:
-        iniciar = menuInicial()
-        if iniciar == 1:
+    iniciar = menuInicial()
+    if iniciar == 2:
+        usuario, contra = registrarse(credenciales)
+        print("Registro exitoso!\n")
+        credencialesNuevo = credenciales
+        credencialesNuevo[usuario] = contra
+        login(credencialesNuevo)
+        log = 1
+    elif iniciar == 1:
+        if login(credenciales) == 1:
             print("\nBienvenido al simulador de epidemia: \nA lo largo del juego deberas ir tomando decisiones para mitigar la propagación de la enfermedad, minimizar el número de muertes y gestionar el presupuesto del estado para frenar el contagio y/o desarrollar curas \nCada decisión que tomes tendrá implicaciones financieras y efectos sobre el estado de la población \nBuena suerte!!")
-            log = 1
-        else:
-            print("\nPartida cancelada")
+            log = 1        
+    else:
+        print("\nPartida cancelada")
     return log
-            
             
 
 # la siguiente funcion, no recibe parametros, inicializa dos listas, una con posibles usuarios y otra con contraseñas para iniciar sesion en el juego
 # se utiliza una bandera booleana para determinar si el usuario ingresa un nombre de usuario valido, en caso de ser asi solicita contraseña
 # y de manera similar, utiliza una bandera booleana para determinar si el usuario ingreso correctamente la contraseña y verifica que sea correspondiente al usuario ingresado
 # en caso de ser ambas afirmativas, coloca a la variable 'ingreso' en 1 y se retorna, es la que se utilizara luego para seguir con el resto del juego
-def login():
-    listaUsuarios = ["usuario", "usuario2","usuario3","1"]
-    listaContraseñas = ["contraseña", "1234", "hola1234","1"]
+def login(credenciales):
     userFound = 0
+        
     while userFound  == 0:
-        user = input("Ingrese un usuario: ")
+        user = input("Ingrese un usuario registrado: ")
         userLower = user.lower()
-        if userLower in listaUsuarios:
+        if userLower in credenciales:
             userFound = 1
-            posIndexU = listaUsuarios.index(userLower)
 
     if userFound == 1:
         passFound = 0
         while passFound == 0:
-            password = input("Ingrese la contraseña: ")
+            password = input("Ingrese la contraseña registrada: ")
             passLower = password.lower()
-            if passLower in listaContraseñas:
-                posIndexP = listaContraseñas.index(passLower)
-                if posIndexU == posIndexP:
-                    passFound = 1
-                    ingreso = 1
+            if passLower == credenciales[userLower]:
+                passFound = 1
+                ingreso = 1
+            else:
+                print("Contraseña incorrecta. Inténtelo de nuevo.")
     return ingreso
-
 
 
 # la siguiente funcion, se utilizara para validar las elecciones del usuario durante el desarrollo del juego
 # recibe un minimo y un maximo, correspondientes a los numeros que los usuarios podran utilizar para tomar las elecciones
 def validacion(min,max):
-    eleccion = int(input(""))
+    while True: 
+        try: 
+            eleccion = int(input(""))
+            break
+        except ValueError: 
+           print("Por favor ingrese un numero entero que corresponda")
     while eleccion < min or eleccion > max:
-        eleccion = int(input("Por favor ingrese una opcion valida:\n"))
-    
+        while True: 
+            try:
+                eleccion = int(input("Por favor ingrese una opcion valida:\n"))
+                break
+            except ValueError: 
+                print("Por favor ingrese un numero entero que corresponda")
+
     return eleccion
 
 
@@ -544,3 +603,81 @@ def finJuego(listaHabitantes, matriz, gano):
             print("\nGANASTE!\n")
         else:
             print("\nPERDISTE!\n")
+
+def generarArchivoEstados(archivo,matriz,lista):
+    try:
+        arch = open(archivo, "wt")
+        i = 0
+        for provincia in matriz:       
+            registro = str(lista[i]) + ";" + str(matriz[i][0]) + ";" + str(matriz[i][1]) + ";" + str(matriz[i][2]) + "\n"
+            arch.write(registro)
+            i += 1
+        
+        arch.close()
+        print("Archivo de estados generado correctamente.")
+
+    except IOError:
+        print("Error al abrir el archivo")    
+
+def generarArchivoSanosPorZona(matriz,lista):
+    try:
+        arch = open("SanosPorZona.csv", "wt")
+        regiones = ["Region Noroeste Argentino (NOA)", "Region Noreste Argentino (NEA)","Region de Cuyo", "Region Pampeana", "Region Patagonica"]        
+        sanosPorRegion = [0,0,0,0,0]
+
+        for i in lista:     
+            if i == 'Jujuy' or i == 'Salta' or i == 'Tucuman' or i == 'Santiago del Estero' or i == 'Catamarca' or i == 'La Rioja':
+                valor = lista.index(i)
+                sanosPorRegion[0] += matriz[valor][0]
+
+            elif i == 'Misiones' or i == 'Corrientes' or i == 'Chaco' or i == 'Formosa':
+                valor = lista.index(i)
+                sanosPorRegion[1] += matriz[valor][0]
+
+            elif i == 'Mendoza' or i == 'San Juan' or i == 'San Luis':
+                valor = lista.index(i)
+                sanosPorRegion[2] += matriz[valor][0]
+
+            elif i == 'Buenos Aires' or i == 'La Pampa' or i == 'Cordoba' or i == 'Santa Fe' or i == 'Entre Rios':
+                valor = lista.index(i)
+                sanosPorRegion[3] += matriz[valor][0]
+
+            elif i == 'Chubut' or i == 'Santa Cruz' or i == 'Rio Negro' or i == 'Neuquen' or i == 'Tierra del Fuego':
+                valor = lista.index(i)
+                sanosPorRegion[4] += matriz[valor][0]
+        for i in range(len(regiones)):
+            registro = regiones[i] + ";" + str(sanosPorRegion[i]) + "\n"
+            arch.write(registro)
+        
+        arch.close()
+        print("Archivo de estados generado correctamente.")
+
+    except IOError:
+        print("Error al abrir el archivo")
+
+# Cálculo de muertes por provincia
+def PorcenMuertosPorProv(listaProvincias,listaHabitantes,matriz):
+    listaPorcMuertos = []
+    for i in range(len(listaProvincias)):
+        porcMuertosProvincia = (matriz[i][2] / listaHabitantes[i]) * 100
+        listaPorcMuertos.append(porcMuertosProvincia)
+    return listaPorcMuertos
+
+# Archivo de Porcentaje de Muertes por provincia
+def ArchivoPorcenMuertos(listaProvincias,listaHabitantes,matriz):
+    listaPorcenMuertos = PorcenMuertosPorProv(listaProvincias,listaHabitantes,matriz)
+    try:
+        archivo = open("PorcentajesMuertesPorProvincia.csv","wt")
+        for i in range(len(listaProvincias)):
+            registro = listaProvincias[i] + ";" + str(listaPorcenMuertos[i]) + "\n"
+            archivo.write(registro)
+        
+        archivo.close()
+        print("Archivo de Porcentaje de muertos por provincia generado correctamente")
+
+    except IOError as msj:
+        print(msj)
+
+
+ 
+ 
